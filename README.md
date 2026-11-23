@@ -20,6 +20,10 @@
 | `qa` | Проверка перед публикацией: PASS / FAIL | qa_check |
 | `orchestrator` | Ведёт весь цикл, вызывает субагентов | субагенты |
 
+## Android-приложение
+
+Полностью на телефоне — см. `android/README.md`. Ядро агентов в `android/core` написано на Kotlin и повторяет логику Python-версии.
+
 ## Установка
 
 Нужны Python 3.10+ и ffmpeg (`apt install ffmpeg` или `brew install ffmpeg`).
