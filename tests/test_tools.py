@@ -1,4 +1,5 @@
 import shutil
+from pathlib import Path
 import subprocess
 
 import pytest
@@ -77,3 +78,25 @@ def test_probe_and_cut(tmp_path):
 
     out = cut(str(src), 1.0, 2.0, "test_cut.mp4")
     assert abs(probe(out)["duration_s"] - 1.0) < 0.2
+
+
+def test_write_srt_from_transcript(tmp_path, monkeypatch):
+    import json
+    import config
+    import tools.common as common
+    from tools.speech import write_srt
+
+    # Перенаправляем outputs во временную папку, чтобы не писать в workspace
+    monkeypatch.setattr(common, "OUTPUT_DIR", tmp_path / "outputs")
+    transcript = tmp_path / "t.json"
+    transcript.write_text(json.dumps([
+        {"start": 0.0, "end": 4.0, "text": "Сегодня покажу рецепт латте с сиропом карамель"},
+        {"start": 4.0, "end": 6.0, "text": "Коротко"},
+    ], ensure_ascii=False), encoding="utf-8")
+
+    srt = Path(write_srt(str(transcript), "out.srt", max_chars=20))
+    text = srt.read_text(encoding="utf-8")
+    assert text.startswith("1\n00:00:00,000 --> ")
+    assert "00:00:04,000 --> 00:00:06,000\nКоротко" in text  # второй сегмент точно по таймкодам
+    assert all(len(line) <= 20 for line in text.splitlines() if line and "-->" not in line and not line.isdigit())
+    assert "Коротко" in text
