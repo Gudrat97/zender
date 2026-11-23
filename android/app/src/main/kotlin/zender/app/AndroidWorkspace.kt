@@ -140,7 +140,7 @@ class AndroidWorkspace(private val context: Context) : Workspace {
     override suspend fun concat(paths: List<String>, outName: String): String {
         require(paths.size >= 2) { "нужно минимум два видео" }
         val items = paths.map { EditedMediaItem.Builder(MediaItem.fromUri(Uri.fromFile(File(it)))).build() }
-        val composition = Composition.Builder(EditedMediaItemSequence.Builder(items).build()).build()
+        val composition = Composition.Builder(EditedMediaItemSequence(items)).build()
         val dst = outFile(outName)
         export(dst) { it.start(composition, dst.absolutePath) }
         return dst.absolutePath
